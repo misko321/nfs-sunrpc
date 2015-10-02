@@ -1,0 +1,4 @@
+*.o
+nfs_client
+nfs_server
+old/
