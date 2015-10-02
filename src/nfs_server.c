@@ -6,11 +6,14 @@
 
 #include "nfs.h"
 
-int *
-ls_1_svc(int value,  struct svc_req *rqstp)
+char **
+ls_1_svc(char *str,  struct svc_req *rqstp)
 {
-	static int  result;
-	result = value * 2;
+	static char * result;
+
+	result = (char *) malloc(20 * sizeof(char));
+	sprintf(result, "%s%s", str, str);
+	// free(result);
 	/*
 	 * insert server code here
 	 */

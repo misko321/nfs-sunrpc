@@ -7,12 +7,12 @@
 #include "nfs.h"
 
 
-int
-nfs_program_1(char *host, int value)
+char *
+nfs_program_1(char *host, char *str)
 {
 	CLIENT *clnt;
-	int  *result_1;
-	// int ls_1_value;
+	char * *result_1;
+	// char *ls_1_str;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, NFS_PROGRAM, NFS_VERSION_1, "udp");
@@ -22,8 +22,8 @@ nfs_program_1(char *host, int value)
 	}
 #endif	/* DEBUG */
 
-	result_1 = ls_1(value, clnt);
-	if (result_1 == (int *) NULL) {
+	result_1 = ls_1(str, clnt);
+	if (result_1 == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 #ifndef	DEBUG
@@ -39,11 +39,11 @@ main (int argc, char *argv[])
 	char *host;
 
 	if (argc < 3) {
-		printf ("usage: %s <server_host> <value>\n", argv[0]);
+		printf ("usage: %s <server_host> <string>\n", argv[0]);
 		exit (1);
 	}
 	host = argv[1];
-	int result = nfs_program_1 (host, atoi(argv[2]));
-	printf("%d\n", result);
+	char *result = nfs_program_1 (host, argv[2]);
+	printf("%s\n", result);
 exit (0);
 }

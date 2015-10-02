@@ -16,8 +16,8 @@
 #define SIG_PF void(*)(int)
 #endif
 
-static int *
-_ls_1 (int  *argp, struct svc_req *rqstp)
+static char **
+_ls_1 (char * *argp, struct svc_req *rqstp)
 {
 	return (ls_1_svc(*argp, rqstp));
 }
@@ -26,7 +26,7 @@ static void
 nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
-		int ls_1_arg;
+		char *ls_1_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -38,8 +38,8 @@ nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		return;
 
 	case ls:
-		_xdr_argument = (xdrproc_t) xdr_int;
-		_xdr_result = (xdrproc_t) xdr_int;
+		_xdr_argument = (xdrproc_t) xdr_wrapstring;
+		_xdr_result = (xdrproc_t) xdr_wrapstring;
 		local = (char *(*)(char *, struct svc_req *)) _ls_1;
 		break;
 

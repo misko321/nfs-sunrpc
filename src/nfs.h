@@ -19,14 +19,14 @@ extern "C" {
 
 #if defined(__STDC__) || defined(__cplusplus)
 #define ls 1
-extern  int * ls_1(int , CLIENT *);
-extern  int * ls_1_svc(int , struct svc_req *);
+extern  char ** ls_1(char *, CLIENT *);
+extern  char ** ls_1_svc(char *, struct svc_req *);
 extern int nfs_program_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
 #define ls 1
-extern  int * ls_1();
-extern  int * ls_1_svc();
+extern  char ** ls_1();
+extern  char ** ls_1_svc();
 extern int nfs_program_1_freeresult ();
 #endif /* K&R C */
 
