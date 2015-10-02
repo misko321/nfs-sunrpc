@@ -38,12 +38,12 @@ main (int argc, char *argv[])
 {
 	char *host;
 
-	if (argc < 3) {
-		printf ("usage: %s <server_host> <string>\n", argv[0]);
+	if (argc < 2) {
+		printf ("usage: %s <server_host>\n", argv[0]);
 		exit (1);
 	}
 	host = argv[1];
 	char *result = nfs_program_1 (host, argv[2]);
-	printf("%s\n", result);
+	printf("%s", result);
 exit (0);
 }

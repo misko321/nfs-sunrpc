@@ -6,21 +6,22 @@
 CLIENT = nfs_client
 SERVER = nfs_server
 
-SOURCES_CLNT.c =
+SOURCES_CLNT.cpp =
 SOURCES_CLNT.h =
-SOURCES_SVC.c =
+SOURCES_SVC.cpp =
 SOURCES_SVC.h =
 SOURCES.x = nfs.x
+CXX = g++
 
-TARGETS_SVC.c = nfs_svc.c nfs_server.c
-TARGETS_CLNT.c = nfs_clnt.c nfs_client.c
-TARGETS = nfs.h   nfs_clnt.c nfs_svc.c nfs_client.c nfs_server.c
+TARGETS_SVC.cpp = nfs_svc.cpp nfs_server.cpp
+TARGETS_CLNT.cpp = nfs_clnt.cpp nfs_client.cpp
+TARGETS = nfs.h   nfs_clnt.cpp nfs_svc.cpp nfs_client.cpp nfs_server.cpp
 
-OBJECTS_CLNT = $(SOURCES_CLNT.c:%.c=%.o) $(TARGETS_CLNT.c:%.c=%.o)
-OBJECTS_SVC = $(SOURCES_SVC.c:%.c=%.o) $(TARGETS_SVC.c:%.c=%.o)
+OBJECTS_CLNT = $(SOURCES_CLNT.cpp:%.cpp=%.o) $(TARGETS_CLNT.cpp:%.cpp=%.o)
+OBJECTS_SVC = $(SOURCES_SVC.cpp:%.cpp=%.o) $(TARGETS_SVC.cpp:%.cpp=%.o)
 # Compiler flags
 
-CFLAGS += -g -Wall
+CXXFLAGS += -g -Wall -std=c++11
 LDLIBS += -lnsl
 RPCGENFLAGS =
 
@@ -31,15 +32,15 @@ all : $(CLIENT) $(SERVER)
 # $(TARGETS) : $(SOURCES.x)
 # 	rpcgen $(RPCGENFLAGS) $(SOURCES.x)
 
-$(OBJECTS_CLNT) : $(SOURCES_CLNT.c) $(SOURCES_CLNT.h) $(TARGETS_CLNT.c)
+$(OBJECTS_CLNT) : $(SOURCES_CLNT.cpp) $(SOURCES_CLNT.h) $(TARGETS_CLNT.cpp)
 
-$(OBJECTS_SVC) : $(SOURCES_SVC.c) $(SOURCES_SVC.h) $(TARGETS_SVC.c)
+$(OBJECTS_SVC) : $(SOURCES_SVC.cpp) $(SOURCES_SVC.h) $(TARGETS_SVC.cpp)
 
 $(CLIENT) : $(OBJECTS_CLNT)
-	$(LINK.c) -o $(CLIENT) $(OBJECTS_CLNT) $(LDLIBS)
+	$(LINK.cpp) -o $(CLIENT) $(OBJECTS_CLNT) $(LDLIBS)
 
 $(SERVER) : $(OBJECTS_SVC)
-	$(LINK.c) -o $(SERVER) $(OBJECTS_SVC) $(LDLIBS)
+	$(LINK.cpp) -o $(SERVER) $(OBJECTS_SVC) $(LDLIBS)
 
 clean:
 	$(RM) core $(OBJECTS_CLNT) $(OBJECTS_SVC) $(CLIENT) $(SERVER)
