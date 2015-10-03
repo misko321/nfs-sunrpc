@@ -13,6 +13,9 @@
 extern "C" {
 #endif
 
+#define NO_ERROR 0
+#define E_FILENAME_INVALID -1
+#define E_FILE_EXISTS -2
 
 #define NFS_PROGRAM 0x21000001
 #define NFS_VERSION_1 1
@@ -21,12 +24,24 @@ extern "C" {
 #define ls 1
 extern  char ** ls_1(char *, CLIENT *);
 extern  char ** ls_1_svc(char *, struct svc_req *);
+#define create 2
+extern  int * create_1(char *, CLIENT *);
+extern  int * create_1_svc(char *, struct svc_req *);
+#define delete 3
+extern  int * delete_1(char *, CLIENT *);
+extern  int * delete_1_svc(char *, struct svc_req *);
 extern int nfs_program_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
 #define ls 1
 extern  char ** ls_1();
 extern  char ** ls_1_svc();
+#define create 2
+extern  int * create_1();
+extern  int * create_1_svc();
+#define delete 3
+extern  int * delete_1();
+extern  int * delete_1_svc();
 extern int nfs_program_1_freeresult ();
 #endif /* K&R C */
 

@@ -22,11 +22,25 @@ _ls_1 (char * *argp, struct svc_req *rqstp)
 	return (ls_1_svc(*argp, rqstp));
 }
 
+static int *
+_create_1 (char * *argp, struct svc_req *rqstp)
+{
+	return (create_1_svc(*argp, rqstp));
+}
+
+static int *
+_delete_1 (char * *argp, struct svc_req *rqstp)
+{
+	return (delete_1_svc(*argp, rqstp));
+}
+
 static void
 nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
 		char *ls_1_arg;
+		char *create_1_arg;
+		char *delete_1_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -41,6 +55,18 @@ nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		_xdr_argument = (xdrproc_t) xdr_wrapstring;
 		_xdr_result = (xdrproc_t) xdr_wrapstring;
 		local = (char *(*)(char *, struct svc_req *)) _ls_1;
+		break;
+
+	case create:
+		_xdr_argument = (xdrproc_t) xdr_wrapstring;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) _create_1;
+		break;
+
+	case delete:
+		_xdr_argument = (xdrproc_t) xdr_wrapstring;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) _delete_1;
 		break;
 
 	default:

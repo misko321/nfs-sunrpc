@@ -4,14 +4,20 @@
  * as a guideline for developing your own functions.
  */
 
+#include <iostream>
 #include "nfs.h"
 
-
 char *
-nfs_program_1(char *host, char *str)
+nfs_program_1(char *host, char *ls_1_str)
 {
 	CLIENT *clnt;
 	char * *result_1;
+	int  *result_2;
+	// int  *result_3;
+	char create_1_filename[10] = "../a.txt";
+	// char delete_1_filename[10] = "abc.txt";
+
+
 	// char *ls_1_str;
 
 #ifndef	DEBUG
@@ -22,10 +28,24 @@ nfs_program_1(char *host, char *str)
 	}
 #endif	/* DEBUG */
 
-	result_1 = ls_1(str, clnt);
+	result_1 = ls_1(ls_1_str, clnt);
 	if (result_1 == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
+
+	result_2 = create_1(create_1_filename, clnt);
+	if (result_2 == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	if (*result_2 == E_FILENAME_INVALID)
+		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
+	else if (*result_2 == E_FILE_EXISTS)
+		std::cout << "ERROR: File '" << create_1_filename << "' already exists.\n";
+
+	// result_3 = delete_1(delete_1_filename, clnt);
+	// if (result_3 == (int *) NULL) {
+	// 	clnt_perror (clnt, "call failed");
+	// }
 #ifndef	DEBUG
 	clnt_destroy (clnt);
 #endif	 /* DEBUG */
@@ -44,6 +64,6 @@ main (int argc, char *argv[])
 	}
 	host = argv[1];
 	char *result = nfs_program_1 (host, argv[2]);
-	printf("%s", result);
+	std::cout << result;
 exit (0);
 }

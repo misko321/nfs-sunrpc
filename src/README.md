@@ -7,6 +7,7 @@
    - read from file
    - delete file
    - prompt
+   - log errors&dones on server
 
 ## ADDITIONAL TODOS
  - replication

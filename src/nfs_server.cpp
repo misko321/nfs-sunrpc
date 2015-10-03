@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <iostream>
 #include <iomanip>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "nfs.h"
 
@@ -27,6 +29,13 @@ std::string format_size(long size) {
 		formatted << size / 1024 / 1024 << "MB";
 
 	return formatted.str();
+}
+
+bool is_filename_valid(std::string filename) {
+	std::string dotdot = "..";
+	if (filename.find(dotdot) != std::string::npos)
+		return false;
+	return true;
 }
 
 char* ls_dir() {
@@ -58,12 +67,43 @@ char* ls_dir() {
 char ** ls_1_svc(char *str,  struct svc_req *rqstp)
 {
 	static char * result;
-	std::cout << "ls\n";
+	std::cout << "Listed files\n";
 	result = ls_dir();
 	// std::cout << result;
 	// sprintf(result, "%s%s", str, str);
 
 	// free(result);
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}
+
+int *
+create_1_svc(char *filename,  struct svc_req *rqstp)
+{
+	static int  result = NO_ERROR;
+	if (!is_filename_valid(std::string(filename)))
+		result = E_FILENAME_INVALID;
+	if (access(filename, F_OK) == 0)
+    result = E_FILE_EXISTS;
+
+	if (result == NO_ERROR) {
+		mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+		open(filename, O_CREAT | O_APPEND, mode);
+		std::cout << "Created '" << filename << "'\n";
+	}
+
+	return &result;
+}
+
+int *
+delete_1_svc(char *filename,  struct svc_req *rqstp)
+{
+	static int  result;
+	std::cout << "Deleted '" << filename << "'\n";
+
 	/*
 	 * insert server code here
 	 */
