@@ -2,10 +2,10 @@
 
 ## TODO
  - OPERATIONS
-   - create empty file
+   - ~~create empty file~~
    - write to file
    - read from file
-   - delete file
+   - ~~delete file~~
    - prompt
    - log errors&dones on server
 

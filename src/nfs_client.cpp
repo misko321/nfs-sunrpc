@@ -13,9 +13,9 @@ nfs_program_1(char *host, char *ls_1_str)
 	CLIENT *clnt;
 	char * *result_1;
 	int  *result_2;
-	// int  *result_3;
-	char create_1_filename[10] = "../a.txt";
-	// char delete_1_filename[10] = "abc.txt";
+	int  *result_3;
+	char create_1_filename[10] = "abc.txt";
+	char delete_1_filename[10] = "abc.txt";
 
 
 	// char *ls_1_str;
@@ -42,13 +42,19 @@ nfs_program_1(char *host, char *ls_1_str)
 	else if (*result_2 == E_FILE_EXISTS)
 		std::cout << "ERROR: File '" << create_1_filename << "' already exists.\n";
 
-	// result_3 = delete_1(delete_1_filename, clnt);
-	// if (result_3 == (int *) NULL) {
-	// 	clnt_perror (clnt, "call failed");
-	// }
+	result_3 = delete_1(delete_1_filename, clnt);
+	if (result_3 == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	if (*result_3 == E_FILENAME_INVALID)
+		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
+	else if (*result_3 == E_FILE_NOT_EXISTS)
+		std::cout << "ERROR: File '" << create_1_filename << "' does not exist.\n";
+
 #ifndef	DEBUG
 	clnt_destroy (clnt);
 #endif	 /* DEBUG */
+
 	return *result_1;
 }
 

@@ -101,9 +101,18 @@ create_1_svc(char *filename,  struct svc_req *rqstp)
 int *
 delete_1_svc(char *filename,  struct svc_req *rqstp)
 {
-	static int  result;
-	std::cout << "Deleted '" << filename << "'\n";
+	//TODO DRY
+	//TODO UDP
+	static int  result = NO_ERROR;
+	if (!is_filename_valid(std::string(filename)))
+		result = E_FILENAME_INVALID;
+	if (access(filename, F_OK) != 0)
+    result = E_FILE_NOT_EXISTS;
 
+	if (result == NO_ERROR) {
+		remove(filename);
+		std::cout << "Deleted '" << filename << "'\n";
+	}
 	/*
 	 * insert server code here
 	 */

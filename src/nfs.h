@@ -16,6 +16,7 @@ extern "C" {
 #define NO_ERROR 0
 #define E_FILENAME_INVALID -1
 #define E_FILE_EXISTS -2
+#define E_FILE_NOT_EXISTS -3
 
 #define NFS_PROGRAM 0x21000001
 #define NFS_VERSION_1 1
