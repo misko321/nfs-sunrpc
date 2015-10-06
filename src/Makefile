@@ -13,9 +13,9 @@ SOURCES_SVC.h =
 SOURCES.x = nfs.x
 CXX = g++
 
-TARGETS_SVC.cpp = nfs_svc.cpp nfs_server.cpp
-TARGETS_CLNT.cpp = nfs_clnt.cpp nfs_client.cpp
-TARGETS = nfs.h   nfs_clnt.cpp nfs_svc.cpp nfs_client.cpp nfs_server.cpp
+TARGETS_SVC.cpp = nfs_svc.cpp nfs_server.cpp nfs_xdr.cpp
+TARGETS_CLNT.cpp = nfs_clnt.cpp nfs_client.cpp nfs_xdr.cpp
+TARGETS = nfs.h nfs_xdr.cpp nfs_clnt.cpp nfs_svc.cpp nfs_client.cpp nfs_server.cpp
 
 OBJECTS_CLNT = $(SOURCES_CLNT.cpp:%.cpp=%.o) $(TARGETS_CLNT.cpp:%.cpp=%.o)
 OBJECTS_SVC = $(SOURCES_SVC.cpp:%.cpp=%.o) $(TARGETS_SVC.cpp:%.cpp=%.o)

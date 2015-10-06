@@ -53,3 +53,33 @@ delete_1(char *filename,  CLIENT *clnt)
 	}
 	return (&clnt_res);
 }
+
+chunk *
+retrieve_file_1(request *arg1,  CLIENT *clnt)
+{
+	static chunk clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, retrieve_file,
+		(xdrproc_t) xdr_request, (caddr_t) &arg1,
+		(xdrproc_t) xdr_chunk, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return (&clnt_res);
+}
+
+int *
+send_file_1(chunk *arg1,  CLIENT *clnt)
+{
+	static int clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, send_file,
+		(xdrproc_t) xdr_chunk, (caddr_t) &arg1,
+		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return (&clnt_res);
+}

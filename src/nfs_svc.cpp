@@ -34,6 +34,18 @@ _delete_1 (char * *argp, struct svc_req *rqstp)
 	return (delete_1_svc(*argp, rqstp));
 }
 
+static chunk *
+_retrieve_file_1 (request  *argp, struct svc_req *rqstp)
+{
+	return (retrieve_file_1_svc(*argp, rqstp));
+}
+
+static int *
+_send_file_1 (chunk  *argp, struct svc_req *rqstp)
+{
+	return (send_file_1_svc(*argp, rqstp));
+}
+
 static void
 nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
@@ -41,6 +53,8 @@ nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		char *ls_1_arg;
 		char *create_1_arg;
 		char *delete_1_arg;
+		request retrieve_file_1_arg;
+		chunk send_file_1_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -69,6 +83,18 @@ nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		local = (char *(*)(char *, struct svc_req *)) _delete_1;
 		break;
 
+	case retrieve_file:
+		_xdr_argument = (xdrproc_t) xdr_request;
+		_xdr_result = (xdrproc_t) xdr_chunk;
+		local = (char *(*)(char *, struct svc_req *)) _retrieve_file_1;
+		break;
+
+	case send_file:
+		_xdr_argument = (xdrproc_t) xdr_chunk;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) _send_file_1;
+		break;
+
 	default:
 		svcerr_noproc (transp);
 		return;
@@ -92,7 +118,7 @@ nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 int
 main (int argc, char **argv)
 {
-	register SVCXPRT *transp;
+	SVCXPRT *transp;
 
 	pmap_unset (NFS_PROGRAM, NFS_VERSION_1);
 

@@ -120,3 +120,27 @@ delete_1_svc(char *filename,  struct svc_req *rqstp)
 	 */
 	return &result;
 }
+
+chunk *
+retrieve_file_1_svc(request arg1,  struct svc_req *rqstp)
+{
+	static chunk  result;
+
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}
+
+int *
+send_file_1_svc(chunk arg1,  struct svc_req *rqstp)
+{
+	static int  result;
+
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}
