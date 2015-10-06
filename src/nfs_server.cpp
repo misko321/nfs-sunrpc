@@ -16,8 +16,6 @@
 
 #include "nfs.h"
 
-#define MAX_WIDTH 20
-
 std::string format_size(long size) {
 	std::ostringstream formatted;
 
@@ -52,7 +50,7 @@ char* ls_dir() {
     if (de->d_type == DT_REG) {
 	    stat(de->d_name, &st);
 
-      files << std::left << std::setw(MAX_WIDTH) << de->d_name << format_size(st.st_size) << std::endl;
+      files << std::left << std::setw(MAX_LENGTH) << de->d_name << format_size(st.st_size) << std::endl;
 		}
   }
 

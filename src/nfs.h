@@ -13,6 +13,8 @@
 extern "C" {
 #endif
 
+#define MAX_LENGTH 20
+
 #define NO_ERROR 0
 #define E_FILENAME_INVALID -1
 #define E_FILE_EXISTS -2

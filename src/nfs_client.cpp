@@ -7,55 +7,145 @@
 #include <iostream>
 #include "nfs.h"
 
-char *
-nfs_program_1(char *host, char *ls_1_str)
-{
-	CLIENT *clnt;
-	char * *result_1;
-	int  *result_2;
-	int  *result_3;
-	char create_1_filename[10] = "abc.txt";
-	char delete_1_filename[10] = "abc.txt";
+static CLIENT *clnt;
 
+void init_clnt(char *host) {
+	#ifndef	DEBUG
+		clnt = clnt_create (host, NFS_PROGRAM, NFS_VERSION_1, "udp");
+		if (clnt == NULL) {
+			clnt_pcreateerror (host);
+			exit (1);
+		}
+	#endif	/* DEBUG */
+}
 
-	// char *ls_1_str;
+void destroy_clnt() {
+	#ifndef	DEBUG
+		clnt_destroy (clnt);
+	#endif	 /* DEBUG */
+}
 
-#ifndef	DEBUG
-	clnt = clnt_create (host, NFS_PROGRAM, NFS_VERSION_1, "udp");
-	if (clnt == NULL) {
-		clnt_pcreateerror (host);
-		exit (1);
-	}
-#endif	/* DEBUG */
-
-	result_1 = ls_1(ls_1_str, clnt);
-	if (result_1 == (char **) NULL) {
+char *ls_cmd(std::string ls_1_str) {
+	char **result = ls_1((char *) ls_1_str.c_str(), clnt);
+	if (result == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 
-	result_2 = create_1(create_1_filename, clnt);
-	if (result_2 == (int *) NULL) {
+	return *result;
+}
+
+int create_cmd(std::string create_1_filename) {
+	int *result = create_1((char *) create_1_filename.c_str(), clnt);
+	if (result == (int *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-	if (*result_2 == E_FILENAME_INVALID)
+
+	if (*result == E_FILENAME_INVALID)
 		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
-	else if (*result_2 == E_FILE_EXISTS)
+	else if (*result == E_FILE_EXISTS)
 		std::cout << "ERROR: File '" << create_1_filename << "' already exists.\n";
 
-	result_3 = delete_1(delete_1_filename, clnt);
-	if (result_3 == (int *) NULL) {
+	return *result;
+}
+
+int delete_cmd(std::string delete_1_filename) {
+	int *result = delete_1((char *) delete_1_filename.c_str(), clnt);
+	if (result == (int *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-	if (*result_3 == E_FILENAME_INVALID)
-		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
-	else if (*result_3 == E_FILE_NOT_EXISTS)
-		std::cout << "ERROR: File '" << create_1_filename << "' does not exist.\n";
 
-#ifndef	DEBUG
-	clnt_destroy (clnt);
-#endif	 /* DEBUG */
+	if (*result == E_FILENAME_INVALID)
+		std::cout << "ERROR: Filename '" << delete_1_filename << "' is invalid.\n";
+	else if (*result == E_FILE_NOT_EXISTS)
+		std::cout << "ERROR: File '" << delete_1_filename << "' does not exist.\n";
 
-	return *result_1;
+	return *result;
+}
+
+
+// char *
+// nfs_program_1(char *host, char *ls_1_str)
+// {
+// 	// CLIENT *clnt;
+// 	char * *result;
+// 	int  *result;
+// 	int  *result;
+// 	char create_1_filename[10] = "abc.txt";
+// 	char delete_1_filename[10] = "abc.txt";
+//
+//
+// 	// char *ls_1_str;
+//
+// 	result = ls_1(ls_1_str, clnt);
+// 	if (result == (char **) NULL) {
+// 		clnt_perror (clnt, "call failed");
+// 	}
+//
+// 	result = create_1(create_1_filename, clnt);
+// 	if (result == (int *) NULL) {
+// 		clnt_perror (clnt, "call failed");
+// 	}
+// 	if (*result == E_FILENAME_INVALID)
+// 		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
+// 	else if (*result == E_FILE_EXISTS)
+// 		std::cout << "ERROR: File '" << create_1_filename << "' already exists.\n";
+//
+// 	result = delete_1(delete_1_filename, clnt);
+// 	if (result == (int *) NULL) {
+// 		clnt_perror (clnt, "call failed");
+// 	}
+// 	if (*result == E_FILENAME_INVALID)
+// 		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
+// 	else if (*result == E_FILE_NOT_EXISTS)
+// 		std::cout << "ERROR: File '" << create_1_filename << "' does not exist.\n";
+//
+// 	return *result;
+// }
+
+
+
+void read_command()
+{
+	//TODO refactor
+  std::string command;
+
+  std::cout << "> ";
+	fflush(stdin);
+  std::cin >> command;
+
+  if (command.compare("ls") == 0) {
+		std::string location;
+		if (std::cin.peek() == '\n') { 	//check if next character is newline
+      location = "."; 							//and assign the default
+    } else {
+        std::cin >> location;
+    }
+
+		char *result = ls_cmd(location);
+		std::cout << std::endl << result << std::endl;
+
+	} else if (command.compare("create") == 0) {
+		std::string filename;
+		if (std::cin.peek() == '\n') { 	//check if next character is newline
+      std::cout << "You must give a filename: create <filename>\n";
+    } else {
+      std::cin >> filename;
+      create_cmd(filename);
+    }
+  } else if (command.compare("delete") == 0) {
+		std::string filename;
+		if (std::cin.peek() == '\n') { 	//check if next character is newline
+      std::cout << "You must give a filename: delete <filename>\n";
+    } else {
+      std::cin >> filename;
+      delete_cmd(filename);
+    }
+  } else if (command.compare("exit") == 0) {
+		exit(0);
+  }
+  // } else {
+  //     return -1;
+  // }
 }
 
 
@@ -69,7 +159,13 @@ main (int argc, char *argv[])
 		exit (1);
 	}
 	host = argv[1];
-	char *result = nfs_program_1 (host, argv[2]);
-	std::cout << result;
+	init_clnt(host);
+
+	// char *result = nfs_program_1 (host, "null");
+	while(true)
+		read_command();
+	// std::cout << result;
+
+	destroy_clnt();
 exit (0);
 }
