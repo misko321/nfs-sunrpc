@@ -103,8 +103,9 @@ int delete_cmd(std::string delete_1_filename) {
 // }
 
 
-
-void read_command()
+//returns boolean that says wheter another command should be read
+//if false, program should exit
+bool read_command()
 {
 	//TODO refactor
   std::string command;
@@ -141,13 +142,14 @@ void read_command()
       delete_cmd(filename);
     }
   } else if (command.compare("exit") == 0) {
-		exit(0);
+		return false;
   } else {
     std::cout << "!Invalid command '" << command << "'\n";
 		std::cin.clear();
 		std::cin.ignore(INT_MAX, '\n');
 		//TODO help
 	}
+	return true;
 }
 
 
@@ -163,11 +165,7 @@ main (int argc, char *argv[])
 	host = argv[1];
 	init_clnt(host);
 
-	// char *result = nfs_program_1 (host, "null");
-	while(true)
-		read_command();
-	// std::cout << result;
+	while(read_command() != false);
 
 	destroy_clnt();
-exit (0);
 }
