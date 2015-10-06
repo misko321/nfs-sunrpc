@@ -113,7 +113,7 @@ void read_command()
 	fflush(stdin);
   std::cin >> command;
 
-  if (command.compare("ls") == 0) {
+  if (command == "ls") {
 		std::string location;
 		if (std::cin.peek() == '\n') { 	//check if next character is newline
       location = "."; 							//and assign the default
@@ -124,7 +124,7 @@ void read_command()
 		char *result = ls_cmd(location);
 		std::cout << std::endl << result << std::endl;
 
-	} else if (command.compare("create") == 0) {
+	} else if (command == "create") {
 		std::string filename;
 		if (std::cin.peek() == '\n') { 	//check if next character is newline
       std::cout << "You must give a filename: create <filename>\n";
@@ -132,7 +132,7 @@ void read_command()
       std::cin >> filename;
       create_cmd(filename);
     }
-  } else if (command.compare("delete") == 0) {
+  } else if (command == "delete") {
 		std::string filename;
 		if (std::cin.peek() == '\n') { 	//check if next character is newline
       std::cout << "You must give a filename: delete <filename>\n";
@@ -142,10 +142,12 @@ void read_command()
     }
   } else if (command.compare("exit") == 0) {
 		exit(0);
-  }
-  // } else {
-  //     return -1;
-  // }
+  } else {
+    std::cout << "!Invalid command '" << command << "'\n";
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		//TODO help
+	}
 }
 
 
