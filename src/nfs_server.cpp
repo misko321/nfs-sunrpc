@@ -81,7 +81,10 @@ char ** ls_1_svc(char *str,  struct svc_req *rqstp)
 int *
 create_1_svc(char *filename,  struct svc_req *rqstp)
 {
-	static int  result = NO_ERROR;
+	static int result;
+
+	std::cout << "Received request to create a file with name '" << filename << "'\n";
+	result = NO_ERROR;
 	if (!is_filename_valid(std::string(filename)))
 		result = E_FILENAME_INVALID;
 	if (access(filename, F_OK) == 0)
@@ -92,16 +95,17 @@ create_1_svc(char *filename,  struct svc_req *rqstp)
 		open(filename, O_CREAT | O_APPEND, mode);
 		std::cout << "Created '" << filename << "'\n";
 	}
-
 	return &result;
 }
 
 int *
 delete_1_svc(char *filename,  struct svc_req *rqstp)
 {
-	//TODO DRY
+	static int result;
+	//TODO DRY, result = NO_ERROR;?
 	//TODO UDP
-	static int  result = NO_ERROR;
+	std::cout << "Received request to delete a file with name '" << filename << "'\n";
+	result = NO_ERROR;
 	if (!is_filename_valid(std::string(filename)))
 		result = E_FILENAME_INVALID;
 	if (access(filename, F_OK) != 0)
@@ -114,6 +118,5 @@ delete_1_svc(char *filename,  struct svc_req *rqstp)
 	/*
 	 * insert server code here
 	 */
-
 	return &result;
 }
