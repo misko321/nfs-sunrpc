@@ -8,6 +8,7 @@
    - ~~delete file~~
    - prompt
    - log errors&dones on server
+   - set root directory for server
 
 ## ADDITIONAL TODOS
  - replication

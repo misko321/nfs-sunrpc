@@ -20,11 +20,11 @@ std::string format_size(long size) {
 	std::ostringstream formatted;
 
 	if (size < 1024)
-		formatted << size << "B";
+		formatted << size << " B";
 	else if (size < 1024 * 1024)
-		formatted << size / 1024 << "KB";
+		formatted << size / 1024 << " KB";
 	else if (size < 1024 * 1024 * 1024)
-		formatted << size / 1024 / 1024 << "MB";
+		formatted << size / 1024 / 1024 << " MB";
 
 	return formatted.str();
 }
@@ -67,13 +67,6 @@ char ** ls_1_svc(char *str,  struct svc_req *rqstp)
 	static char * result;
 	std::cout << "Listed files\n";
 	result = ls_dir();
-	// std::cout << result;
-	// sprintf(result, "%s%s", str, str);
-
-	// free(result);
-	/*
-	 * insert server code here
-	 */
 
 	return &result;
 }
@@ -90,10 +83,9 @@ create_1_svc(char *filename,  struct svc_req *rqstp)
 	if (access(filename, F_OK) == 0)
     result = E_FILE_EXISTS;
 
-	if (result == NO_ERROR) {
-		mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-		open(filename, O_CREAT | O_APPEND, mode);
-		std::cout << "Created '" << filename << "'\n";
+	if (result != E_FILENAME_INVALID) {
+		fopen(filename, "w");
+		std::cout << "Created/truncated '" << filename << "'\n";
 	}
 	return &result;
 }
@@ -115,9 +107,6 @@ delete_1_svc(char *filename,  struct svc_req *rqstp)
 		remove(filename);
 		std::cout << "Deleted '" << filename << "'\n";
 	}
-	/*
-	 * insert server code here
-	 */
 	return &result;
 }
 
@@ -134,13 +123,24 @@ retrieve_file_1_svc(request arg1,  struct svc_req *rqstp)
 }
 
 int *
-send_file_1_svc(chunk arg1,  struct svc_req *rqstp)
+send_file_1_svc(chunk ch,  struct svc_req *rqstp)
 {
-	static int  result;
+	static int result;
+  result = NO_ERROR;
 
-	/*
-	 * insert server code here
-	 */
+	FILE *file;
+  file = fopen(ch.filename, "a");
+  if (file == NULL) {
+      result = errno;
+      return &result;
+  }
+
+	fseek(file, ch.dest_offset, SEEK_SET);
+  fwrite(ch.data.data_val, 1, ch.data.data_len, file);
+  fclose(file);
+
+	if (ch.dest_offset == 0)
+		std::cout << "Received file '" << ch.filename << "'\n";
 
 	return &result;
 }

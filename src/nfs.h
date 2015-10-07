@@ -58,8 +58,8 @@ extern  int * delete_1_svc(char *, struct svc_req *);
 extern  chunk * retrieve_file_1(request , CLIENT *);
 extern  chunk * retrieve_file_1_svc(request , struct svc_req *);
 #define send_file 5
-extern  int * send_file_1(chunk , CLIENT *);
-extern  int * send_file_1_svc(chunk , struct svc_req *);
+extern  int * send_file_1(chunk, CLIENT *);
+extern  int * send_file_1_svc(chunk, struct svc_req *);
 extern int nfs_program_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */

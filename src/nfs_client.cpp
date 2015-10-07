@@ -5,6 +5,7 @@
  */
 
 #include <iostream>
+#include <unistd.h>
 #include "nfs.h"
 
 static CLIENT *clnt;
@@ -43,7 +44,7 @@ int create_cmd(std::string create_1_filename) {
 	if (*result == E_FILENAME_INVALID)
 		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
 	else if (*result == E_FILE_EXISTS)
-		std::cout << "ERROR: File '" << create_1_filename << "' already exists.\n";
+		std::cout << "ERROR: File '" << create_1_filename << "' already existed and was truncated.\n";
 
 	return *result;
 }
@@ -62,46 +63,35 @@ int delete_cmd(std::string delete_1_filename) {
 	return *result;
 }
 
+void send_cmd(std::string send_1_filename) {
+	// first, create the file
+	create_1((char *) send_1_filename.c_str(), clnt);
 
-// char *
-// nfs_program_1(char *host, char *ls_1_str)
-// {
-// 	// CLIENT *clnt;
-// 	char * *result;
-// 	int  *result;
-// 	int  *result;
-// 	char create_1_filename[10] = "abc.txt";
-// 	char delete_1_filename[10] = "abc.txt";
-//
-//
-// 	// char *ls_1_str;
-//
-// 	result = ls_1(ls_1_str, clnt);
-// 	if (result == (char **) NULL) {
-// 		clnt_perror (clnt, "call failed");
-// 	}
-//
-// 	result = create_1(create_1_filename, clnt);
-// 	if (result == (int *) NULL) {
-// 		clnt_perror (clnt, "call failed");
-// 	}
-// 	if (*result == E_FILENAME_INVALID)
-// 		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
-// 	else if (*result == E_FILE_EXISTS)
-// 		std::cout << "ERROR: File '" << create_1_filename << "' already exists.\n";
-//
-// 	result = delete_1(delete_1_filename, clnt);
-// 	if (result == (int *) NULL) {
-// 		clnt_perror (clnt, "call failed");
-// 	}
-// 	if (*result == E_FILENAME_INVALID)
-// 		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
-// 	else if (*result == E_FILE_NOT_EXISTS)
-// 		std::cout << "ERROR: File '" << create_1_filename << "' does not exist.\n";
-//
-// 	return *result;
-// }
+	FILE *file = fopen(send_1_filename.c_str(), "r");
 
+	int pos = 0;
+	chunk ch;
+  ch.filename = (char *) send_1_filename.c_str();
+	ch.data.data_val = (char *) malloc(DATA_LENGTH * sizeof(char));
+
+	do {
+    ch.data.data_len = fread(ch.data.data_val, 1, DATA_LENGTH, file);
+		ch.dest_offset = pos;
+		pos += ch.data.data_len;
+
+    int *result = send_file_1(ch, clnt);
+
+		if (result == (int *) NULL) {
+			clnt_perror (clnt, "call failed");
+		}
+
+  } while (ch.data.data_len == DATA_LENGTH);
+
+	//TODO free() all malloc()'s
+	free(ch.data.data_val);
+  fclose(file);
+
+}
 
 //returns boolean that says wheter another command should be read
 //if false, program should exit
@@ -141,6 +131,14 @@ bool read_command()
       std::cin >> filename;
       delete_cmd(filename);
     }
+  } else if (command == "send") {
+		std::string filename2;
+		if (std::cin.peek() == '\n') { 	//check if next character is newline
+      std::cout << "You must give a filename: send <filename>\n";
+    } else {
+      std::cin >> filename2;
+      send_cmd(filename2);
+    } //TODO check if file to send exists
   } else if (command.compare("exit") == 0) {
 		return false;
   } else {

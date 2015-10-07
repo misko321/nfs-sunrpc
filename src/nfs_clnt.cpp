@@ -55,7 +55,7 @@ delete_1(char *filename,  CLIENT *clnt)
 }
 
 chunk *
-retrieve_file_1(request *arg1,  CLIENT *clnt)
+retrieve_file_1(request arg1,  CLIENT *clnt)
 {
 	static chunk clnt_res;
 
@@ -70,7 +70,7 @@ retrieve_file_1(request *arg1,  CLIENT *clnt)
 }
 
 int *
-send_file_1(chunk *arg1,  CLIENT *clnt)
+send_file_1(chunk arg1,  CLIENT *clnt)
 {
 	static int clnt_res;
 
