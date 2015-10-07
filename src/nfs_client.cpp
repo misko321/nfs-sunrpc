@@ -64,7 +64,13 @@ int delete_cmd(std::string delete_1_filename) {
 }
 
 void send_cmd(std::string send_1_filename) {
-	// first, create the file
+	//first, check if the file exists locally
+	if (access(send_1_filename.c_str(), F_OK) != 0) {
+    std::cout << "ERROR: File '" << send_1_filename << "' does not exist.\n";
+		return;
+	}
+
+	//then, create an empty file server-side
 	create_1((char *) send_1_filename.c_str(), clnt);
 
 	FILE *file = fopen(send_1_filename.c_str(), "r");
