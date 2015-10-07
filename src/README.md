@@ -3,12 +3,12 @@
 ## TODO
  - OPERATIONS
    - ~~create empty file~~
-   - write to file
+   - ~~write to file~~
    - read from file
    - ~~delete file~~
-   - prompt
+   - ~~prompt~~
    - log errors&dones on server
-   - set root directory for server
+   - ~~set root directory for server~~
 
 ## ADDITIONAL TODOS
  - replication

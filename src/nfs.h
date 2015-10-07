@@ -35,7 +35,7 @@ struct chunk {
 		u_int data_len;
 		char *data_val;
 	} data;
-	int size;
+	int size; //TODO remove
 	int dest_offset;
 };
 typedef struct chunk chunk;

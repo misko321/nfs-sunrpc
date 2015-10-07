@@ -11,6 +11,7 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <unistd.h>
 
 #ifndef SIG_PF
 #define SIG_PF void(*)(int)
@@ -118,6 +119,9 @@ nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 int
 main (int argc, char **argv)
 {
+	if (argc == 2)
+		chdir(argv[1]);
+
 	SVCXPRT *transp;
 
 	pmap_unset (NFS_PROGRAM, NFS_VERSION_1);
