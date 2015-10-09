@@ -99,6 +99,42 @@ void send_cmd(std::string send_1_filename) {
 
 }
 
+void retrieve_cmd(std::string retrieve_1_filename) {
+	//first, check if the file exists locally
+	FILE *file = fopen(retrieve_1_filename.c_str(), "w");
+
+	int pos = 0;
+	request req;
+	chunk *ch = NULL;
+
+  req.filename = (char *) retrieve_1_filename.c_str();
+	do {
+		req.offset = pos;
+		pos += DATA_LENGTH;
+
+    ch = retrieve_file_1(req, clnt);
+		if (ch->status == E_FILE_NOT_EXISTS) //if file does not exist
+			break;
+
+		if (ch == (chunk *) NULL) {
+			clnt_perror (clnt, "call failed");
+		}
+
+		fseek(file, ch->dest_offset, SEEK_SET);
+	  fwrite(ch->data.data_val, 1, ch->data.data_len, file);
+
+  } while (ch->data.data_len == DATA_LENGTH);
+
+	//TODO free() all malloc()'s
+	// free(ch.data.data_val);
+
+  fclose(file);
+	if (ch->status == E_FILE_NOT_EXISTS) { //if file does not exist
+		remove(retrieve_1_filename.c_str());
+		std::cout << "ERROR: File '" << retrieve_1_filename << "' does not exist.\n";
+	}
+}
+
 //returns boolean that says wheter another command should be read
 //if false, program should exit
 bool read_command()
@@ -117,7 +153,6 @@ bool read_command()
     } else {
         std::cin >> location;
     }
-
 		char *result = ls_cmd(location);
 		std::cout << std::endl << result << std::endl;
 
@@ -138,14 +173,22 @@ bool read_command()
       delete_cmd(filename);
     }
   } else if (command == "send") {
-		std::string filename2;
+		std::string filename;
 		if (std::cin.peek() == '\n') { 	//check if next character is newline
       std::cout << "You must give a filename: send <filename>\n";
     } else {
-      std::cin >> filename2;
-      send_cmd(filename2);
+      std::cin >> filename;
+      send_cmd(filename);
     } //TODO check if file to send exists
-  } else if (command.compare("exit") == 0) {
+  } else if (command == "get") {
+		std::string filename;
+		if (std::cin.peek() == '\n') { 	//check if next character is newline
+      std::cout << "You must give a filename: get <filename>\n";
+    } else {
+      std::cin >> filename;
+      retrieve_cmd(filename);
+    } //TODO check if file to send exists
+  } else if (command.compare("exit") == 0 || command.compare("quit") == 0) {
 		return false;
   } else {
     std::cout << "!Invalid command '" << command << "'\n";

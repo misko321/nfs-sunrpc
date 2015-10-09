@@ -12,7 +12,7 @@ xdr_request (XDR *xdrs, request *objp)
 
 	 if (!xdr_string (xdrs, &objp->filename, FILENAME_LENGTH))
 		 return FALSE;
-	 if (!xdr_int (xdrs, &objp->start))
+	 if (!xdr_int (xdrs, &objp->offset))
 		 return FALSE;
 	return TRUE;
 }
@@ -26,7 +26,7 @@ xdr_chunk (XDR *xdrs, chunk *objp)
 		 return FALSE;
 	 if (!xdr_bytes (xdrs, (char **)&objp->data.data_val, (u_int *) &objp->data.data_len, DATA_LENGTH))
 		 return FALSE;
-	 if (!xdr_int (xdrs, &objp->size))
+	 if (!xdr_int (xdrs, &objp->status))
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->dest_offset))
 		 return FALSE;

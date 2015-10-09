@@ -25,7 +25,7 @@ extern "C" {
 
 struct request {
 	char *filename;
-	int start;
+	int offset;
 };
 typedef struct request request;
 
@@ -35,7 +35,7 @@ struct chunk {
 		u_int data_len;
 		char *data_val;
 	} data;
-	int size; //TODO remove
+	int status; //TODO remove
 	int dest_offset;
 };
 typedef struct chunk chunk;

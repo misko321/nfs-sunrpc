@@ -111,15 +111,30 @@ delete_1_svc(char *filename,  struct svc_req *rqstp)
 }
 
 chunk *
-retrieve_file_1_svc(request arg1,  struct svc_req *rqstp)
+retrieve_file_1_svc(request req,  struct svc_req *rqstp)
 {
-	static chunk  result;
+	static chunk ch;
+	ch.status = NO_ERROR;
 
-	/*
-	 * insert server code here
-	 */
+	FILE *file;
+  file = fopen(req.filename, "r");
 
-	return &result;
+	if (access(req.filename, F_OK) != 0)
+    ch.status = E_FILE_NOT_EXISTS;
+
+	if (req.offset == 0)
+		std::cout << "Requested file '" << req.filename << "'\n";
+
+	if (ch.status == NO_ERROR) {
+		fseek(file, req.offset, SEEK_SET);
+		ch.data.data_val = (char *) malloc(DATA_LENGTH * sizeof(char));
+		ch.data.data_len = fread(ch.data.data_val, 1, DATA_LENGTH, file);
+		ch.dest_offset = req.offset;
+		ch.filename = req.filename;
+	  fclose(file);
+	}
+
+	return &ch;
 }
 
 int *
