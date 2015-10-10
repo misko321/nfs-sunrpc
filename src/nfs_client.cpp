@@ -135,6 +135,21 @@ void retrieve_cmd(std::string retrieve_1_filename) {
 	}
 }
 
+int mkdir_cmd(std::string mkdir_1_filename) {
+	int *result = mkdir_1((char *) mkdir_1_filename.c_str(), clnt);
+
+	if (result == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+
+	if (*result == E_FILENAME_INVALID)
+		std::cout << "ERROR: Filename '" << mkdir_1_filename << "' is invalid.\n";
+	else if (*result == E_FILE_EXISTS)
+		std::cout << "ERROR: File '" << mkdir_1_filename << "' already existed and was truncated.\n";
+
+	return *result;
+}
+
 //returns boolean that says wheter another command should be read
 //if false, program should exit
 bool read_command()
@@ -181,12 +196,20 @@ bool read_command()
       send_cmd(filename);
     } //TODO check if file to send exists
   } else if (command == "get") {
-		std::string filename;
+		std::string filename; //TODO everywhere is one parameter taken -> DRY
 		if (std::cin.peek() == '\n') { 	//check if next character is newline
       std::cout << "You must give a filename: get <filename>\n";
     } else {
       std::cin >> filename;
       retrieve_cmd(filename);
+    } //TODO check if file to send exists
+  } else if (command == "mkdir") {
+		std::string filename;
+		if (std::cin.peek() == '\n') { 	//check if next character is newline
+      std::cout << "You must give a filename: mkdir <filename>\n";
+    } else {
+      std::cin >> filename;
+      mkdir_cmd(filename);
     } //TODO check if file to send exists
   } else if (command.compare("exit") == 0 || command.compare("quit") == 0) {
 		return false;

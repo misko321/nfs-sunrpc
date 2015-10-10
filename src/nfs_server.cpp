@@ -159,3 +159,22 @@ send_file_1_svc(chunk ch,  struct svc_req *rqstp)
 
 	return &result;
 }
+
+int *
+mkdir_1_svc(char *dirname,  struct svc_req *rqstp)
+{
+	static int result;
+
+	std::cout << "Received request to create a directory with name '" << dirname << "'\n";
+	result = NO_ERROR;
+	if (!is_filename_valid(std::string(dirname)))
+		result = E_FILENAME_INVALID;
+	if (access(dirname, F_OK) == 0)
+    result = E_FILE_EXISTS;
+
+	if (result != E_FILENAME_INVALID) {
+		mkdir(dirname, 0700);
+		std::cout << "Created '" << dirname << "'\n";
+	}
+	return &result;
+}

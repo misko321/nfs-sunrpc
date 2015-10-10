@@ -60,6 +60,9 @@ extern  chunk * retrieve_file_1_svc(request , struct svc_req *);
 #define send_file 5
 extern  int * send_file_1(chunk, CLIENT *);
 extern  int * send_file_1_svc(chunk, struct svc_req *);
+#define mk_dir 6
+extern  int * mkdir_1(char *, CLIENT *);
+extern  int * mkdir_1_svc(char *, struct svc_req *);
 extern int nfs_program_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
@@ -78,6 +81,9 @@ extern  chunk * retrieve_file_1_svc();
 #define send_file 5
 extern  int * send_file_1();
 extern  int * send_file_1_svc();
+#define mk_dir 6
+extern  int * mkdir_1();
+extern  int * mkdir_1_svc();
 extern int nfs_program_1_freeresult ();
 #endif /* K&R C */
 

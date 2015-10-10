@@ -21,5 +21,6 @@ program NFS_PROGRAM {
     int delete(string filename) = 3;
     chunk retrieve_file(request*) = 4;
     int send_file(chunk *) = 5;
+    int mkdir(string dirname) = 6;
   } = 1;
 } = 0x21000001;
