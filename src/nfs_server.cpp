@@ -47,11 +47,12 @@ char* ls_dir() {
 	struct stat st;
 
   for(struct dirent *de = NULL; (de = readdir(d)) != NULL; ) {
-    if (de->d_type == DT_REG) {
-	    stat(de->d_name, &st);
-
-      files << std::left << std::setw(MAX_LENGTH) << de->d_name << format_size(st.st_size) << std::endl;
-		}
+    stat(de->d_name, &st);
+  	if (de->d_type == DT_REG)
+    	files << std::left << std::setw(MAX_LENGTH) << de->d_name << de->d_type
+				<< format_size(st.st_size) << std::endl;
+		else if (de->d_type == DT_DIR && de->d_name[0] != '.')
+			files << de->d_name << "/" << std::endl;
   }
 
   closedir(d);
