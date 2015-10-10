@@ -6,9 +6,22 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 #include "nfs.h"
 
 static CLIENT *clnt;
+
+char *ls_cmd(std::string ls_1_str);
+int create_cmd(std::string create_1_filename);
+int mkdir_cmd(std::string mkdir_1_filename);
+int delete_cmd(std::string delete_1_filename);
+void sendfile(std::string filename);
+void senddir(std::string dirname);
+void send_cmd(std::string send_1_filename);
+void retrieve_cmd(std::string retrieve_1_filename);
 
 void init_clnt(char *host) {
 	#ifndef	DEBUG
@@ -26,11 +39,14 @@ void destroy_clnt() {
 	#endif	 /* DEBUG */
 }
 
+
+
 char *ls_cmd(std::string ls_1_str) {
 	char **result = ls_1((char *) ls_1_str.c_str(), clnt);
 	if (result == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
+	std::cout << std::endl << *result << std::endl;
 
 	return *result;
 }
@@ -44,7 +60,22 @@ int create_cmd(std::string create_1_filename) {
 	if (*result == E_FILENAME_INVALID)
 		std::cout << "ERROR: Filename '" << create_1_filename << "' is invalid.\n";
 	else if (*result == E_FILE_EXISTS)
-		std::cout << "ERROR: File '" << create_1_filename << "' already existed and was truncated.\n";
+		std::cout << "WARNING: File '" << create_1_filename << "' already existed and was truncated.\n";
+
+	return *result;
+}
+
+int mkdir_cmd(std::string mkdir_1_filename) {
+	int *result = mkdir_1((char *) mkdir_1_filename.c_str(), clnt);
+
+	if (result == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+
+	if (*result == E_FILENAME_INVALID)
+		std::cout << "ERROR: Filename '" << mkdir_1_filename << "' is invalid.\n";
+	else if (*result == E_FILE_EXISTS)
+		std::cout << "WARNING: File '" << mkdir_1_filename << "' already existed and was truncated.\n";
 
 	return *result;
 }
@@ -70,34 +101,56 @@ void send_cmd(std::string send_1_filename) {
 		return;
 	}
 
-	//then, create an empty file server-side
-	create_1((char *) send_1_filename.c_str(), clnt);
+	struct stat st;
 
-	FILE *file = fopen(send_1_filename.c_str(), "r");
+	stat(send_1_filename.c_str(), &st);
+	if (S_ISREG(st.st_mode))
+		sendfile(send_1_filename);
+	else if (S_ISDIR(st.st_mode))
+		senddir(send_1_filename);
+}
+
+void sendfile(std::string filename) {
+	//first, create an empty file server-side
+	create_1((char *) filename.c_str(), clnt);
+	FILE *file = fopen(filename.c_str(), "r");
 
 	int pos = 0;
 	chunk ch;
-  ch.filename = (char *) send_1_filename.c_str();
+	ch.filename = (char *) filename.c_str();
 	ch.data.data_val = (char *) malloc(DATA_LENGTH * sizeof(char));
 
 	do {
-    ch.data.data_len = fread(ch.data.data_val, 1, DATA_LENGTH, file);
+		ch.data.data_len = fread(ch.data.data_val, 1, DATA_LENGTH, file);
 		ch.dest_offset = pos;
 		pos += ch.data.data_len;
 
-    int *result = send_file_1(ch, clnt);
+		int *result = send_file_1(ch, clnt);
 
 		if (result == (int *) NULL) {
 			clnt_perror (clnt, "call failed");
 		}
 
-  } while (ch.data.data_len == DATA_LENGTH);
+	} while (ch.data.data_len == DATA_LENGTH);
 
 	//TODO free() all malloc()'s
 	free(ch.data.data_val);
-  fclose(file);
-
+	fclose(file);
 }
+
+void senddir(std::string dirname) {
+	mkdir_cmd(dirname);
+
+	DIR* d = opendir(dirname.c_str());
+
+  for(struct dirent *de = NULL; (de = readdir(d)) != NULL;) {
+    if (de->d_name[0] != '.')
+			send_cmd(dirname + "/" + std::string(de->d_name));
+  }
+
+  closedir(d);
+}
+
 
 void retrieve_cmd(std::string retrieve_1_filename) {
 	//first, check if the file exists locally
@@ -135,21 +188,6 @@ void retrieve_cmd(std::string retrieve_1_filename) {
 	}
 }
 
-int mkdir_cmd(std::string mkdir_1_filename) {
-	int *result = mkdir_1((char *) mkdir_1_filename.c_str(), clnt);
-
-	if (result == (int *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-
-	if (*result == E_FILENAME_INVALID)
-		std::cout << "ERROR: Filename '" << mkdir_1_filename << "' is invalid.\n";
-	else if (*result == E_FILE_EXISTS)
-		std::cout << "ERROR: File '" << mkdir_1_filename << "' already existed and was truncated.\n";
-
-	return *result;
-}
-
 //returns boolean that says wheter another command should be read
 //if false, program should exit
 bool read_command()
@@ -168,9 +206,7 @@ bool read_command()
     } else {
         std::cin >> location;
     }
-		char *result = ls_cmd(location);
-		std::cout << std::endl << result << std::endl;
-
+		ls_cmd(location);
 	} else if (command == "create") {
 		std::string filename;
 		if (std::cin.peek() == '\n') { 	//check if next character is newline

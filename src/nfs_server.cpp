@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <iostream>
 #include <iomanip>
-#include <sys/stat.h>
 #include <fcntl.h>
 
 #include "nfs.h"
@@ -106,6 +105,8 @@ delete_1_svc(char *filename,  struct svc_req *rqstp)
 
 	if (result == NO_ERROR) {
 		remove(filename);
+		std::string command = "rm -rf " + std::string(filename);
+		system(command.c_str());
 		std::cout << "Deleted '" << filename << "'\n";
 	}
 	return &result;
