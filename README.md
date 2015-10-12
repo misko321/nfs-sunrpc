@@ -26,11 +26,12 @@ send(name):
 
 retrieve(name):
   // if (file return file, if dir return list of files) (info in chunk.status?)
-  // TODO list is already returned by ls
   if (status == FILE)
     normally_proceed as with file
   if (status == DIR)
     create dir locally
-    read list of all dirs to string
+    ls on that dir
     foreach (filename in list)
+      if filename.endsWith('/');
+        utnij '/' || od razu retrieve_dir(filename);
       retrieve(filename)

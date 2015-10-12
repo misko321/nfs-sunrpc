@@ -15,6 +15,17 @@
 
 #include "nfs.h"
 
+char* ls_dir(std::string path);
+char ** ls_1_svc(char *str,  struct svc_req *rqstp);
+int *create_1_svc(char *filename,  struct svc_req *rqstp);
+int *delete_1_svc(char *filename,  struct svc_req *rqstp);
+chunk *retrieve_file_1_svc(request req,  struct svc_req *rqstp);
+int *send_file_1_svc(chunk ch,  struct svc_req *rqstp);
+int *mkdir_1_svc(char *dirname,  struct svc_req *rqstp);
+chunk retrievefile(request req);
+chunk retrievedir(request req);
+
+
 std::string format_size(long size) {
 	std::ostringstream formatted;
 
@@ -35,12 +46,10 @@ bool is_filename_valid(std::string filename) {
 	return true;
 }
 
-char* ls_dir() {
-	// const char* path = argc <= 1 ? "." : argv[1];
-	const char* path = ".";
+char* ls_dir(std::string path) {
 	std::ostringstream files;
 
-  DIR* d = opendir(path);
+  DIR* d = opendir(path.c_str());
   if (d == NULL) return NULL;
 
 	struct stat st;
@@ -66,7 +75,7 @@ char ** ls_1_svc(char *str,  struct svc_req *rqstp)
 {
 	static char * result;
 	std::cout << "Listed files\n";
-	result = ls_dir();
+	result = ls_dir(std::string(str));
 
 	return &result;
 }
@@ -90,8 +99,7 @@ create_1_svc(char *filename,  struct svc_req *rqstp)
 	return &result;
 }
 
-int *
-delete_1_svc(char *filename,  struct svc_req *rqstp)
+int * delete_1_svc(char *filename,  struct svc_req *rqstp)
 {
 	static int result;
 	//TODO DRY, result = NO_ERROR;?
@@ -112,12 +120,25 @@ delete_1_svc(char *filename,  struct svc_req *rqstp)
 	return &result;
 }
 
-chunk *
-retrieve_file_1_svc(request req,  struct svc_req *rqstp)
+chunk * retrieve_file_1_svc(request req,  struct svc_req *rqstp)
 {
 	static chunk ch;
 	ch.status = NO_ERROR;
 
+	struct stat st;
+
+	stat(req.filename, &st);
+	if (S_ISREG(st.st_mode))
+		ch = retrievefile(req);
+	else if (S_ISDIR(st.st_mode))
+		ch = retrievedir(req);
+
+
+	return &ch;
+}
+
+chunk retrievefile(request req) {
+	chunk ch;
 	FILE *file;
   file = fopen(req.filename, "r");
 
@@ -136,11 +157,16 @@ retrieve_file_1_svc(request req,  struct svc_req *rqstp)
 	  fclose(file);
 	}
 
-	return &ch;
+	return ch;
 }
 
-int *
-send_file_1_svc(chunk ch,  struct svc_req *rqstp)
+chunk retrievedir(request req) {
+	chunk ch;
+
+	return ch;
+}
+
+int * send_file_1_svc(chunk ch,  struct svc_req *rqstp)
 {
 	static int result;
   result = NO_ERROR;
@@ -162,8 +188,7 @@ send_file_1_svc(chunk ch,  struct svc_req *rqstp)
 	return &result;
 }
 
-int *
-mkdir_1_svc(char *dirname,  struct svc_req *rqstp)
+int * mkdir_1_svc(char *dirname,  struct svc_req *rqstp)
 {
 	static int result;
 
