@@ -215,3 +215,25 @@ int * mkdir_1_svc(char *dirname,  struct svc_req *rqstp)
 	}
 	return &result;
 }
+
+int *
+exists_1_svc(char *filename,  struct svc_req *rqstp)
+{
+	static int result;
+	result = NO_ERROR;
+	struct stat st;
+
+	if (!is_filename_valid(std::string(filename)))
+		result = E_FILENAME_INVALID;
+	else if (access(filename, F_OK) != 0)
+		result = E_FILE_NOT_EXISTS;
+	else {
+		stat(filename, &st);
+		if (S_ISREG(st.st_mode))
+			result = T_FILE;
+		else if (S_ISDIR(st.st_mode))
+			result = T_DIR;
+	}
+
+	return &result;
+}

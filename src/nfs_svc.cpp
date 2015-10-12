@@ -53,6 +53,12 @@ _mkdir_1 (char * *argp, struct svc_req *rqstp)
 	return (mkdir_1_svc(*argp, rqstp));
 }
 
+static int *
+_exists_1 (char * *argp, struct svc_req *rqstp)
+{
+	return (exists_1_svc(*argp, rqstp));
+}
+
 static void
 nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
@@ -106,6 +112,12 @@ nfs_program_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		_xdr_argument = (xdrproc_t) xdr_wrapstring;
 		_xdr_result = (xdrproc_t) xdr_int;
 		local = (char *(*)(char *, struct svc_req *)) _mkdir_1;
+		break;
+
+	case exists:
+		_xdr_argument = (xdrproc_t) xdr_wrapstring;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) _exists_1;
 		break;
 
 	default:
