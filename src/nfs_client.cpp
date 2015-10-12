@@ -157,31 +157,34 @@ void senddir(std::string dirname) {
 
 
 void retrieve_cmd(std::string retrieve_1_filename) {
-	//first, check if the file exists locally
 	if (retrieve_1_filename.back() == '/')
 		retrieve_1_filename = retrieve_1_filename.substr(0, retrieve_1_filename.length() - 1);
 
+	int filetype = *exists_1((char *) retrieve_1_filename.c_str(), clnt);
+
+	if (filetype == E_FILE_NOT_EXISTS) {
+		std::cout << "ERROR: File '" << retrieve_1_filename << "' does not exist.\n";
+		return;
+	} else if (filetype == T_DIR)
+		retrievedir(retrieve_1_filename);
+		else
+		retrievefile(retrieve_1_filename);
+}
+
+void retrievefile(std::string filename) {
 	int pos = 0;
 	request req;
 	chunk *ch = NULL;
-	FILE *file;
 
-  req.filename = (char *) retrieve_1_filename.c_str();
+	req.filename = (char *) filename.c_str();
+	FILE *file = fopen(filename.c_str(), "w");
+
 	do {
 		req.offset = pos;
 		pos += DATA_LENGTH;
 
     ch = retrieve_file_1(req, clnt);
-		//TODO check if exists -> E_FILE_NOT_EXISTS, T_FILE, T_DIR
-		if (ch->status == T_DIR) {
-			retrievedir(retrieve_1_filename);
-			return;
-		}
-		if (ch->status == E_FILE_NOT_EXISTS) //if file does not exist
-			break;
 
-		if (req.offset == 0)
-			file = fopen(retrieve_1_filename.c_str(), "w");
 		if (ch == (chunk *) NULL) {
 			clnt_perror (clnt, "call failed");
 		}
@@ -192,17 +195,7 @@ void retrieve_cmd(std::string retrieve_1_filename) {
   } while (ch->data.data_len == DATA_LENGTH);
 
 	//TODO free() all malloc()'s
-	// free(ch.data.data_val);
-
   fclose(file);
-	if (ch->status == E_FILE_NOT_EXISTS) { //if file does not exist
-		remove(retrieve_1_filename.c_str());
-		std::cout << "ERROR: File '" << retrieve_1_filename << "' does not exist.\n";
-	}
-}
-
-void retrievefile(std::string filename) {
-
 }
 
 void retrievedir(std::string filename) {
