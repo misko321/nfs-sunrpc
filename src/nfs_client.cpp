@@ -137,7 +137,6 @@ void sendfile(std::string filename) {
 
 	} while (ch.data.data_len == DATA_LENGTH);
 
-	//TODO free() all malloc()'s
 	free(ch.data.data_val);
 	fclose(file);
 }
@@ -194,7 +193,6 @@ void retrievefile(std::string filename) {
 
   } while (ch->data.data_len == DATA_LENGTH);
 
-	//TODO free() all malloc()'s
   fclose(file);
 }
 
@@ -218,7 +216,7 @@ void retrievedir(std::string filename) {
 //if false, program should exit
 bool read_command()
 {
-	//TODO refactor
+	//TODO everywhere is one parameter taken -> DRY +REFACTOR
   std::string command;
 
   std::cout << "> ";
@@ -257,15 +255,15 @@ bool read_command()
     } else {
       std::cin >> filename;
       send_cmd(filename);
-    } //TODO check if file to send exists
+    }
   } else if (command == "get") {
-		std::string filename; //TODO everywhere is one parameter taken -> DRY
+		std::string filename;
 		if (std::cin.peek() == '\n') { 	//check if next character is newline
       std::cout << "You must give a filename: get <filename>\n";
     } else {
       std::cin >> filename;
       retrieve_cmd(filename);
-    } //TODO check if file to send exists
+    }
   } else if (command == "mkdir") {
 		std::string filename;
 		if (std::cin.peek() == '\n') { 	//check if next character is newline
@@ -273,14 +271,14 @@ bool read_command()
     } else {
       std::cin >> filename;
       mkdir_cmd(filename);
-    } //TODO check if file to send exists
+    }
   } else if (command.compare("exit") == 0 || command.compare("quit") == 0) {
 		return false;
   } else {
     std::cout << "!Invalid command '" << command << "'\n";
 		std::cin.clear();
 		std::cin.ignore(INT_MAX, '\n');
-		//TODO help
+		//TODO print help +ENHANCEMENT
 	}
 	return true;
 }

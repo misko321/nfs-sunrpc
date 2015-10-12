@@ -102,10 +102,9 @@ create_1_svc(char *filename,  struct svc_req *rqstp)
 int * delete_1_svc(char *filename,  struct svc_req *rqstp)
 {
 	static int result;
-	//TODO DRY, result = NO_ERROR;?
-	//TODO UDP
 	std::cout << "Received request to delete a file with name '" << filename << "'\n";
 	result = NO_ERROR;
+
 	if (!is_filename_valid(std::string(filename)))
 		result = E_FILENAME_INVALID;
 	if (access(filename, F_OK) != 0)
@@ -171,7 +170,6 @@ chunk retrievedir(request req) {
 	chunk ch;
 	ch.status = T_DIR;
 	ch.filename = req.filename;
-	//TODO have to malloc?
 
 	return ch;
 }
