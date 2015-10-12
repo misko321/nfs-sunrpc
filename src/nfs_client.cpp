@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <limits>
+#include <sstream>
 #include "nfs.h"
 
 static CLIENT *clnt;
@@ -22,6 +24,9 @@ void sendfile(std::string filename);
 void senddir(std::string dirname);
 void send_cmd(std::string send_1_filename);
 void retrieve_cmd(std::string retrieve_1_filename);
+void retrievefile(std::string filename);
+void retrievedir(std::string filename);
+
 
 void init_clnt(char *host) {
 	#ifndef	DEBUG
@@ -46,7 +51,6 @@ char *ls_cmd(std::string ls_1_str) {
 	if (result == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-	std::cout << std::endl << *result << std::endl;
 
 	return *result;
 }
@@ -154,11 +158,13 @@ void senddir(std::string dirname) {
 
 void retrieve_cmd(std::string retrieve_1_filename) {
 	//first, check if the file exists locally
-	FILE *file = fopen(retrieve_1_filename.c_str(), "w");
+	if (retrieve_1_filename.back() == '/')
+		retrieve_1_filename = retrieve_1_filename.substr(0, retrieve_1_filename.length() - 1);
 
 	int pos = 0;
 	request req;
 	chunk *ch = NULL;
+	FILE *file;
 
   req.filename = (char *) retrieve_1_filename.c_str();
 	do {
@@ -166,9 +172,16 @@ void retrieve_cmd(std::string retrieve_1_filename) {
 		pos += DATA_LENGTH;
 
     ch = retrieve_file_1(req, clnt);
+		//TODO check if exists -> E_FILE_NOT_EXISTS, T_FILE, T_DIR
+		if (ch->status == T_DIR) {
+			retrievedir(retrieve_1_filename);
+			return;
+		}
 		if (ch->status == E_FILE_NOT_EXISTS) //if file does not exist
 			break;
 
+		if (req.offset == 0)
+			file = fopen(retrieve_1_filename.c_str(), "w");
 		if (ch == (chunk *) NULL) {
 			clnt_perror (clnt, "call failed");
 		}
@@ -185,6 +198,26 @@ void retrieve_cmd(std::string retrieve_1_filename) {
 	if (ch->status == E_FILE_NOT_EXISTS) { //if file does not exist
 		remove(retrieve_1_filename.c_str());
 		std::cout << "ERROR: File '" << retrieve_1_filename << "' does not exist.\n";
+	}
+}
+
+void retrievefile(std::string filename) {
+
+}
+
+void retrievedir(std::string filename) {
+	mkdir(filename.c_str(), 0700);
+
+	std::string str_result = std::string(ls_cmd(filename));
+	std::istringstream sstr_result(str_result);
+	if (str_result.length() == 0)
+		return; //directory empty
+
+	std::string eachfile;
+	while(sstr_result >> eachfile) {
+		sstr_result.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		retrieve_cmd(filename + "/" + eachfile);
 	}
 }
 
@@ -206,7 +239,8 @@ bool read_command()
     } else {
         std::cin >> location;
     }
-		ls_cmd(location);
+		char *result = ls_cmd(location);
+		std::cout << std::endl << result << std::endl;
 	} else if (command == "create") {
 		std::string filename;
 		if (std::cin.peek() == '\n') { 	//check if next character is newline

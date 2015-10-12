@@ -23,6 +23,9 @@ extern "C" {
 #define FILENAME_LENGTH 128
 #define DATA_LENGTH 1024
 
+#define T_FILE 10
+#define T_DIR 11
+
 struct request {
 	char *filename;
 	int offset;
@@ -35,7 +38,7 @@ struct chunk {
 		u_int data_len;
 		char *data_val;
 	} data;
-	int status; //TODO remove
+	int status;
 	int dest_offset;
 };
 typedef struct chunk chunk;

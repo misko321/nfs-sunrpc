@@ -123,16 +123,27 @@ int * delete_1_svc(char *filename,  struct svc_req *rqstp)
 chunk * retrieve_file_1_svc(request req,  struct svc_req *rqstp)
 {
 	static chunk ch;
-	ch.status = NO_ERROR;
+	//clear previous ch
+	ch.dest_offset = req.offset;
+	ch.filename = req.filename;
+	ch.data.data_len = 0;
+	ch.data.data_val = NULL;
 
 	struct stat st;
 
-	stat(req.filename, &st);
-	if (S_ISREG(st.st_mode))
-		ch = retrievefile(req);
-	else if (S_ISDIR(st.st_mode))
-		ch = retrievedir(req);
+	if (req.offset == 0)
+		std::cout << "Requested file '" << req.filename << "'\n";
 
+	if (access(req.filename, F_OK) != 0)
+    ch.status = E_FILE_NOT_EXISTS;
+	else {
+		stat(req.filename, &st);
+		if (S_ISREG(st.st_mode))
+			ch = retrievefile(req);
+		else if (S_ISDIR(st.st_mode))
+			ch = retrievedir(req);
+	}
+	std::cout << "Returned " << ch.status << std::endl;
 
 	return &ch;
 }
@@ -142,26 +153,25 @@ chunk retrievefile(request req) {
 	FILE *file;
   file = fopen(req.filename, "r");
 
-	if (access(req.filename, F_OK) != 0)
-    ch.status = E_FILE_NOT_EXISTS;
+	ch.status = T_FILE;
 
-	if (req.offset == 0)
-		std::cout << "Requested file '" << req.filename << "'\n";
+	fseek(file, req.offset, SEEK_SET);
+	ch.data.data_val = (char *) malloc(DATA_LENGTH * sizeof(char));
+	ch.data.data_len = fread(ch.data.data_val, 1, DATA_LENGTH, file);
+	ch.dest_offset = req.offset;
+	ch.filename = req.filename;
+  fclose(file);
 
-	if (ch.status == NO_ERROR) {
-		fseek(file, req.offset, SEEK_SET);
-		ch.data.data_val = (char *) malloc(DATA_LENGTH * sizeof(char));
-		ch.data.data_len = fread(ch.data.data_val, 1, DATA_LENGTH, file);
-		ch.dest_offset = req.offset;
-		ch.filename = req.filename;
-	  fclose(file);
-	}
+	std::cout << ch.status << std::endl;
 
 	return ch;
 }
 
 chunk retrievedir(request req) {
 	chunk ch;
+	ch.status = T_DIR;
+	ch.filename = req.filename;
+	//TODO have to malloc?
 
 	return ch;
 }
