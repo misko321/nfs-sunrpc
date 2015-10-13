@@ -272,7 +272,11 @@ bool read_command()
       std::cin >> filename;
       mkdir_cmd(filename);
     }
-  } else if (command.compare("exit") == 0 || command.compare("quit") == 0) {
+  } else if (command == "lls") {
+		std::cout << std::endl;
+		system("ls -l");
+		std::cout << std::endl;
+  } else if (command == "exit" || command == "quit") {
 		return false;
   } else {
     std::cout << "!Invalid command '" << command << "'\n";
